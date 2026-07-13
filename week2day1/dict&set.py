@@ -1,0 +1,5 @@
+print([n * 2 for n in range(4)])
+print([c for c in "hello" if c != "l"])
+print([w.upper() for w in ["ai", "ml"]])
+print({n: n % 2 for n in range(3)})
+print(len([n for n in range(20) if n % 3 == 0]))
