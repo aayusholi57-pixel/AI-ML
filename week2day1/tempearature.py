@@ -2,7 +2,7 @@
     return c * 1.8 + 32
 
 msg = temp(23)
-print(msg)'''
+print(msg)
 
 def grade(num):
     if num > 90:
@@ -11,4 +11,4 @@ def grade(num):
         return "Fail"
 
 msg = grade(99)
-print(msg)
+print(msg)'''

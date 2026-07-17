@@ -76,12 +76,19 @@ for letter in a.lower():
         count+=1
 print(f"number of consonant is : {count}")
 
-'''
+
 age= int(input("enter the age:"))
 while age>18:
     print(f"current age: {age}- 18")
     age = age -1 
     print("next")
+
+
+
+'''
+
+
+
 
 
 
