@@ -1,10 +1,10 @@
-a=["ram","ram","ram","shyam","shyam"]
-b=set(a)
-dict={"ram":0,"shyam":0}
-for key in b:
-    for word in a:
-        if key==word:
-            dict[key]+=1
+words = ["ram", "ram", "ram", "shyam", "shyam"]
+counts = {}
 
-for key, value in dict.items():
+for word in words:
+    if word not in counts:
+        counts[word] = 0
+    counts[word] += 1
+
+for key, value in counts.items():
     print(f"{key}: {value}")
