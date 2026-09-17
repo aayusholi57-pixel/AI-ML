@@ -1,7 +1,9 @@
-a= "ram,ram,ram,shyam,shyam"
-b= set(a.split(","))
-for key in b:
-    for word in a:
-        if key == word:
-            count += 1
-print(f"{key}: {count}")
+text = "ram,ram,ram,shyam,shyam"
+words = text.split(",")
+counts = {}
+
+for word in words:
+    counts[word] = counts.get(word, 0) + 1
+
+for key, count in counts.items():
+    print(f"{key}: {count}")
