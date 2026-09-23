@@ -24,7 +24,7 @@ def test_memory_persists_and_retrieves_relevant_messages(tmp_path: Path) -> None
 
 def test_sessions_are_isolated() -> None:
     memory = MemoryStore()
-    agent = build_local_agent(session_id="a")
+    agent = build_local_agent(memory, "a")
     agent.remember("session a memory")
     other = build_local_agent(memory, "b")
     assert other.stats() == 0
