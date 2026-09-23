@@ -1,631 +1,171 @@
+"""Reusable Exam Preparation RAG engine.
+
+Importing this module has no network or model-loading side effects.
+"""
+from __future__ import annotations
+
 import os
+from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 import pymupdf
 from dotenv import load_dotenv
-
-from sklearn.feature_extraction.text import TfidfVectorizer
+from openai import OpenAI
 from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import Normalizer
 
-from openai import OpenAI
-
-
-# =========================================================
-# 1. CONFIGURATION
-# =========================================================
-
-DOCUMENTS_DIR = Path(__file__).resolve().parent / "documents"
-
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
-
-
-# =========================================================
-# 2. GEMINI CLIENT
-# =========================================================
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-if not GOOGLE_API_KEY:
-    raise ValueError(
-        "GOOGLE_API_KEY is not set.\n"
-        "Add GOOGLE_API_KEY=YOUR_NEW_GEMINI_API_KEY to E:\\AI-ML\\.env."
-    )
-
-client = OpenAI(
-    api_key=GOOGLE_API_KEY,
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-)
-
-# Use a currently available Gemini Flash model.
+BASE_DIR = Path(__file__).resolve().parent
+DOCUMENTS_DIR = BASE_DIR / "documents"
+load_dotenv(BASE_DIR.parent / ".env")
 MODEL_NAME = "gemini-2.5-flash"
 
 
-# =========================================================
-# 3. LOAD PDF FILES
-# =========================================================
-
-def load_pdfs():
-
+def load_pdfs(documents_dir: Path = DOCUMENTS_DIR) -> list[dict[str, Any]]:
+    """Load non-empty text pages from PDFs."""
+    if not documents_dir.is_dir():
+        raise FileNotFoundError(f"Documents folder was not found: {documents_dir}")
     documents = []
-
-    if not os.path.exists(DOCUMENTS_DIR):
-
-        raise FileNotFoundError(
-            f"Folder '{DOCUMENTS_DIR}' was not found."
-        )
-
-    for filename in os.listdir(DOCUMENTS_DIR):
-
-        if not filename.lower().endswith(".pdf"):
-            continue
-
-        pdf_path = os.path.join(
-            DOCUMENTS_DIR,
-            filename
-        )
-
-        print(f"📄 Loading: {filename}")
-
-        pdf = pymupdf.open(pdf_path)
-
-        for page_number, page in enumerate(
-            pdf,
-            start=1
-        ):
-
-            text = page.get_text("text").strip()
-
-            if text:
-
-                documents.append({
-                    "source": filename,
-                    "page": page_number,
-                    "text": text
-                })
-
-        pdf.close()
-
+    for pdf_path in sorted(documents_dir.glob("*.pdf")):
+        with pymupdf.open(pdf_path) as pdf:
+            for page_number, page in enumerate(pdf, start=1):
+                text = page.get_text("text").strip()
+                if text:
+                    documents.append({"source": pdf_path.name, "page": page_number, "text": text})
+    if not documents:
+        raise ValueError(f"No readable PDF text was found in {documents_dir}")
     return documents
 
 
-# =========================================================
-# 4. CREATE CHUNKS
-# =========================================================
-
-def create_chunks(
-    documents,
-    chunk_size=800,
-    overlap=100
-):
-
+def create_chunks(documents: list[dict[str, Any]], chunk_size: int = 800, overlap: int = 100):
+    """Split page text into overlapping character chunks."""
+    if chunk_size <= 0 or overlap < 0 or overlap >= chunk_size:
+        raise ValueError("chunk_size must be positive and overlap must be smaller than chunk_size")
     chunks = []
-
+    step = chunk_size - overlap
     for document in documents:
-
-        text = document["text"]
-
-        start = 0
-
-        while start < len(text):
-
-            end = start + chunk_size
-
-            chunk_text = text[start:end].strip()
-
+        text = str(document["text"])
+        for start in range(0, len(text), step):
+            chunk_text = text[start:start + chunk_size].strip()
             if chunk_text:
-
-                chunks.append({
-                    "source": document["source"],
-                    "page": document["page"],
-                    "text": chunk_text
-                })
-
-            start += chunk_size - overlap
-
+                chunks.append({"source": document["source"], "page": document["page"], "text": chunk_text})
+            if start + chunk_size >= len(text):
+                break
+    if not chunks:
+        raise ValueError("No chunks were created from the supplied documents")
     return chunks
 
 
-# =========================================================
-# 5. CREATE TF-IDF + SVD INDEX
-# =========================================================
+def create_index(chunks: list[dict[str, Any]]):
+    """Create a normalized TF-IDF/SVD retrieval index."""
+    if not chunks:
+        raise ValueError("chunks cannot be empty")
+    vectorizer = TfidfVectorizer(stop_words="english", max_features=10_000)
+    matrix = vectorizer.fit_transform([chunk["text"] for chunk in chunks])
+    max_components = min(matrix.shape[0] - 1, matrix.shape[1] - 1, 100)
+    if max_components < 1:
+        raise ValueError("Not enough vocabulary/chunks to create an SVD index")
+    svd = TruncatedSVD(n_components=max_components, random_state=42)
+    reduced = svd.fit_transform(matrix)
+    normalizer = Normalizer()
+    return vectorizer, svd, normalizer, normalizer.fit_transform(reduced)
 
-def create_index(chunks):
 
-    texts = [
-        chunk["text"]
-        for chunk in chunks
+def retrieve(question: str, chunks, vectorizer, svd, normalizer, index, k: int = 3):
+    """Return the highest-scoring chunks for a question."""
+    if not question.strip():
+        raise ValueError("question must be non-empty")
+    if k < 1:
+        raise ValueError("k must be at least 1")
+    query_vector = normalizer.transform(svd.transform(vectorizer.transform([question.strip()])))
+    scores = index @ query_vector[0]
+    return [
+        {"source": chunks[i]["source"], "page": chunks[i]["page"],
+         "text": chunks[i]["text"], "score": float(scores[i])}
+        for i in scores.argsort()[::-1][:k]
     ]
 
-    # -----------------------------
-    # TF-IDF
-    # -----------------------------
-
-    tfidf = TfidfVectorizer(
-        stop_words="english",
-        max_features=10000
-    )
-
-    tfidf_matrix = tfidf.fit_transform(texts)
-
-    # -----------------------------
-    # SVD
-    # -----------------------------
-
-    max_components = min(
-        tfidf_matrix.shape[0] - 1,
-        tfidf_matrix.shape[1] - 1,
-        100
-    )
-
-    if max_components < 1:
-
-        raise ValueError(
-            "Not enough data to create SVD index."
-        )
-
-    svd = TruncatedSVD(
-        n_components=max_components,
-        random_state=42
-    )
-
-    reduced_matrix = svd.fit_transform(
-        tfidf_matrix
-    )
-
-    # -----------------------------
-    # NORMALIZATION
-    # -----------------------------
-
-    normalizer = Normalizer()
-
-    index = normalizer.fit_transform(
-        reduced_matrix
-    )
-
-    return (
-        tfidf,
-        svd,
-        normalizer,
-        index
-    )
-
-
-# =========================================================
-# 6. RETRIEVE RELEVANT CHUNKS
-# =========================================================
-
-def retrieve(
-    question,
-    chunks,
-    tfidf,
-    svd,
-    normalizer,
-    index,
-    k=3
-):
-
-    # Question → TF-IDF
-
-    question_tfidf = tfidf.transform(
-        [question]
-    )
-
-    # TF-IDF → SVD
-
-    question_svd = svd.transform(
-        question_tfidf
-    )
-
-    # Normalize
-
-    question_vector = normalizer.transform(
-        question_svd
-    )
-
-    # Cosine similarity
-    #
-    # Because both vectors are normalized:
-    # dot product = cosine similarity
-
-    scores = index @ question_vector[0]
-
-    # Highest score first
-
-    ranked_indices = scores.argsort()[::-1]
-
-    results = []
-
-    for i in ranked_indices[:k]:
-
-        results.append({
-            "source": chunks[i]["source"],
-            "page": chunks[i]["page"],
-            "text": chunks[i]["text"],
-            "score": float(scores[i])
-        })
-
-    return results
-
-
-# =========================================================
-# 7. BUILD CONTEXT FOR GEMINI
-# =========================================================
 
 def build_context(results):
-
-    context_parts = []
-
-    for number, result in enumerate(
-        results,
-        start=1
-    ):
-
-        context_parts.append(
-            f"""
-SOURCE {number}
--------------------------
-File: {result['source']}
-Page: {result['page']}
-
-{result['text']}
-"""
-        )
-
-    return "\n".join(context_parts)
+    """Format retrieved chunks with source metadata."""
+    return "\n\n".join(
+        f"SOURCE {i}\nFile: {item['source']}\nPage: {item['page']}\n\n{item['text']}"
+        for i, item in enumerate(results, start=1)
+    )
 
 
-# =========================================================
-# 8. GENERATE ANSWER WITH GEMINI
-# =========================================================
-
-def generate_answer(
-    question,
-    context,
-    mode="explain"
-):
-
-    # -----------------------------------------
-    # Mode instructions
-    # -----------------------------------------
-
-    if mode == "explain":
-
-        mode_instruction = """
-Explain the topic clearly for a student.
-Use simple language.
-Use headings and bullet points where useful.
-"""
-
-    elif mode == "short":
-
-        mode_instruction = """
-Give a short exam-oriented answer.
-Keep it concise but complete.
-"""
-
-    elif mode == "5-mark":
-
-        mode_instruction = """
-Write a structured 5-mark examination answer.
-
-Include where appropriate:
-- Definition
-- Main explanation
-- Important points
-- Example if present in the study material
-- Conclusion
-
-Do not add information that is not in the study material.
-"""
-
-    elif mode == "mcq":
-
-        mode_instruction = """
-Create 5 multiple-choice questions from the
-provided study material.
-
-For every question provide:
-
-Question
-A.
-B.
-C.
-D.
-
-Correct Answer:
-Explanation:
-
-Only use information from the study material.
-"""
-
-    else:
-
-        mode_instruction = """
-Give a clear exam-oriented answer.
-"""
+def _client() -> OpenAI:
+    """Create the Gemini OpenAI-compatible client only when generation is requested."""
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        raise RuntimeError("GOOGLE_API_KEY is not configured")
+    return OpenAI(
+        api_key=api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+    )
 
 
-    # -----------------------------------------
-    # Prompt
-    # -----------------------------------------
+def generate_answer(question: str, context: str, mode: str = "explain") -> str:
+    """Generate an answer grounded only in retrieved study material."""
+    instructions = {
+        "explain": "Explain clearly for a student.",
+        "short": "Give a concise exam-oriented answer.",
+        "5-mark": "Write a structured 5-mark answer.",
+        "mcq": "Create 5 MCQs with four options, answers, and brief explanations.",
+    }
+    instruction = instructions.get(mode, instructions["explain"])
+    prompt = f"""You are an Exam Preparation RAG assistant.
+Answer ONLY from the supplied study material. Do not invent facts or use outside knowledge.
+If the material is insufficient, say: "I couldn't find enough information in the provided study material."
 
-    prompt = f"""
-You are an Exam Preparation RAG assistant.
-
-Your job is to answer questions using ONLY
-the provided study material.
-
-IMPORTANT RULES:
-
-1. Use ONLY the provided study material.
-2. Do NOT use outside knowledge.
-3. Do NOT invent facts.
-4. Do NOT assume missing information.
-5. Preserve important technical terminology.
-6. If the material does not contain enough
-   information, clearly say:
-
-"I couldn't find enough information in the
-provided study material."
-
-RESPONSE MODE:
-{mode}
-
-MODE INSTRUCTIONS:
-{mode_instruction}
+Mode: {mode}
+Instructions: {instruction}
 
 STUDY MATERIAL
-==================================================
-
 {context}
 
-==================================================
-
-STUDENT QUESTION
-==================================================
-
+QUESTION
 {question}
-
-==================================================
-
-Now produce the answer.
 """
-
-
-    # -----------------------------------------
-    # Gemini request
-    # -----------------------------------------
-
-    response = client.chat.completions.create(
-
+    response = _client().chat.completions.create(
         model=MODEL_NAME,
-
         messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a precise exam preparation "
-                    "assistant. Ground every answer in "
-                    "the supplied study material."
-                )
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
+            {"role": "system", "content": "Ground every answer in the supplied study material."},
+            {"role": "user", "content": prompt},
         ],
-
-        temperature=0.2
+        temperature=0.2,
     )
-
-    return response.choices[0].message.content
-
-
-# =========================================================
-# 9. COMPLETE EXAM RAG
-# =========================================================
-
-def exam_rag(
-    question,
-    mode="explain",
-    k=3
-):
-
-    # -----------------------------------------
-    # STEP 1 — RETRIEVAL
-    # -----------------------------------------
-
-    results = retrieve(
-        question,
-        chunks,
-        tfidf,
-        svd,
-        normalizer,
-        index,
-        k=k
-    )
+    return response.choices[0].message.content or ""
 
 
-    # -----------------------------------------
-    # STEP 2 — CONTEXT
-    # -----------------------------------------
-
-    context = build_context(
-        results
-    )
-
-
-    # -----------------------------------------
-    # STEP 3 — GEMINI
-    # -----------------------------------------
-
-    answer = generate_answer(
-        question,
-        context,
-        mode=mode
-    )
+@lru_cache(maxsize=1)
+def knowledge_base():
+    """Build and cache the local retrieval index."""
+    documents = load_pdfs()
+    chunks = create_chunks(documents)
+    vectorizer, svd, normalizer, index = create_index(chunks)
+    return chunks, vectorizer, svd, normalizer, index
 
 
-    # -----------------------------------------
-    # STEP 4 — RETURN
-    # -----------------------------------------
+def exam_rag(question: str, mode: str = "explain", k: int = 3):
+    """Retrieve study material and generate a grounded answer."""
+    chunks, vectorizer, svd, normalizer, index = knowledge_base()
+    results = retrieve(question, chunks, vectorizer, svd, normalizer, index, k)
+    return {"answer": generate_answer(question, build_context(results), mode), "sources": results}
 
-    return {
-        "answer": answer,
-        "sources": results
-    }
-
-
-# =========================================================
-# 10. BUILD KNOWLEDGE BASE
-# =========================================================
-
-print()
-print("=" * 70)
-print("📚 EXAM PREPARATION RAG")
-print("=" * 70)
-
-documents = load_pdfs()
-
-print()
-print(f"📄 Pages loaded: {len(documents)}")
-
-chunks = create_chunks(
-    documents
-)
-
-print(
-    f"✂️ Chunks created: {len(chunks)}"
-)
-
-tfidf, svd, normalizer, index = create_index(
-    chunks
-)
-
-print(
-    f"🧠 Index created: {index.shape}"
-)
-
-print()
-print("✅ KNOWLEDGE BASE READY")
-print("=" * 70)
-
-
-# =========================================================
-# 11. TERMINAL TEST
-# =========================================================
 
 if __name__ == "__main__":
-
+    print("Exam Preparation RAG — type exit to quit.")
     while True:
-
-        print()
-        print("=" * 70)
-
-        question = input(
-            "Enter your question "
-            "(or type 'exit'): "
-        ).strip()
-
+        question = input("\nQuestion: ").strip()
         if question.lower() == "exit":
-
-            print("\nGoodbye! 👋")
-
             break
-
-
-        # -------------------------------------
-        # Select mode
-        # -------------------------------------
-
-        print()
-        print("Choose mode:")
-
-        print("1. Explain")
-        print("2. Short answer")
-        print("3. 5-mark answer")
-        print("4. MCQs")
-
-        choice = input(
-            "\nEnter choice (1-4): "
-        ).strip()
-
-
-        mode_map = {
-
-            "1": "explain",
-            "2": "short",
-            "3": "5-mark",
-            "4": "mcq"
-
-        }
-
-        if choice not in mode_map:
-
-            print(
-                "\n❌ Please enter 1, 2, 3, or 4."
-            )
-
-            continue
-
-
-        mode = mode_map[choice]
-
-
-        # -------------------------------------
-        # Run RAG
-        # -------------------------------------
-
         try:
-
-            print()
-            print("🔎 Searching study material...")
-
-            result = exam_rag(
-                question,
-                mode=mode,
-                k=3
-            )
-
-
-            # ---------------------------------
-            # Answer
-            # ---------------------------------
-
-            print()
-            print("=" * 70)
-            print("🤖 EXAM ANSWER")
-            print("=" * 70)
-
-            print(
-                result["answer"]
-            )
-
-
-            # ---------------------------------
-            # Sources
-            # ---------------------------------
-
-            print()
-            print("=" * 70)
-            print("📚 SOURCES")
-            print("=" * 70)
-
+            result = exam_rag(question)
+            print("\n" + result["answer"])
+            print("\nSources:")
             for source in result["sources"]:
-
-                print(
-                    f"📄 {source['source']} "
-                    f"| Page {source['page']} "
-                    f"| Score: {source['score']:.4f}"
-                )
-
-
-        except Exception as e:
-
-            print()
-            print("=" * 70)
-            print("❌ ERROR")
-            print("=" * 70)
-
-            print(e)
+                print(f"- {source['source']} | page {source['page']} | score {source['score']:.4f}")
+        except Exception as error:
+            print(f"Error: {error}")
