@@ -1,7 +1,43 @@
-﻿.venv/
-.venv310/
-venv/
+# Python bytecode and caches
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+.venv*/
+venv/
+env/
+
+# Jupyter
 .ipynb_checkpoints/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local databases and generated vector stores
+*.db
+*.sqlite
+*.sqlite3
+chroma_db/
+**/chroma_db/
+
+# Model/checkpoint artifacts generated locally
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Logs and temporary files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/*
+!.vscode/extensions.json

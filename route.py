@@ -1,4 +1,1 @@
-from fastapi import FASTAPI
-app = FASTAPI()
-
-@app.get("
+"""Compatibility entry point for the FastAPI example.\n\nUse `servermodel:app` as the canonical application target.\n"""\n\nfrom servermodel import app\n\n__all__ = ["app"]\n
