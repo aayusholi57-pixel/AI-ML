@@ -1,0 +1,14 @@
+# Core scientific Python stack
+numpy==1.26.4
+pandas==2.2.3
+matplotlib==3.9.4
+scikit-learn==1.6.1
+
+# Jupyter
+jupyter==1.1.1
+notebook==7.3.2
+ipykernel==6.29.5
+
+# Useful notebook/data dependencies
+openpyxl==3.1.5
+requests==2.32.3

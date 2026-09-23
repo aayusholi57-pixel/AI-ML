@@ -1,0 +1,4 @@
+Python is easy to learn.
+Practice makes perfect.
+Files help store data.
+This is the fourth line.

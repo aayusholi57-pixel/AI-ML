@@ -1,0 +1,42 @@
+# AI-ML Learning Repository
+
+This repository contains my Python, data analysis, SQL, and machine-learning practice while learning AI/ML.
+
+## Main topics
+
+- Python fundamentals
+- Data structures and functions
+- File handling and JSON
+- SQL and SQLite
+- NumPy and pandas
+- Matplotlib
+- Machine learning fundamentals
+- Practice projects and notebooks
+
+## Environment
+
+The learning environment targets **Python 3.10+**.
+
+Install the main dependencies with:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+## Repository structure
+
+- `day 1_class work/` — introductory Python exercises
+- `day 1_home work/` — first homework exercises
+- `day_2 class work/` — Python practice
+- `day_2 home work/` — homework and problem-solving exercises
+- `day5/` — dictionaries, sets, loops, and counting exercises
+- `week2day1/` — functions, collections, loops, and calculators
+- `week2day3/` — JSON and file-handling practice
+- `week3/` — pandas and machine-learning fundamentals
+- `recalling_and_new_programs/` — larger practice programs and projects
+- `*.ipynb` — Jupyter notebooks
+- `*.csv` — practice datasets
+
+## Note
+
+This is a learning repository, so some exercises intentionally demonstrate simple or alternative approaches rather than production-ready code.
