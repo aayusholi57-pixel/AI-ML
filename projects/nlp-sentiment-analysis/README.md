@@ -2,21 +2,42 @@
 
 ## Portfolio summary
 
-A PyTorch NLP experiment that builds a small BPE tokenizer and an embedding-based sentiment classifier. The project demonstrates the mechanics behind tokenization, padding, embeddings, forward passes, loss, and optimization.
+A two-layer NLP portfolio project: the educational PyTorch/BPE experiment is preserved in the learning archive, while this folder contains a reproducible offline TF-IDF + Logistic Regression baseline with held-out evaluation and a CLI demo.
+
+## Evaluation
+
+The executable evaluation reports **accuracy, precision, recall, and F1** on a fixed held-out split. Metrics are calculated at runtime by `sentiment.py`; no performance numbers are hard-coded into the documentation.
+
+```bash
+python sentiment.py
+pytest -q
+```
+
+## Demo
+
+```bash
+python demo.py
+```
+
+The demo trains the lightweight baseline locally and accepts sentences interactively.
 
 ## Engineering focus
 
-- Custom BPE tokenization
-- Sequence padding
-- PyTorch embeddings
-- Binary classification
-- Training loop and backpropagation
-- Small-data experimentation
+- TF-IDF text features
+- Logistic-regression classification
+- Held-out evaluation
+- Accuracy, precision, recall, and F1
+- Deterministic training
+- Testable inference entry point
 
-## Important limitation
+## Transformer connection
 
-The original notebook contains historical broken cells and very small toy data. It should be presented as an NLP fundamentals project, not as a production sentiment model.
+The repository root also contains `model.py`, a lazy Hugging Face sentiment pipeline example. It remains separate from the offline benchmark so CI does not require model downloads or API access.
 
-## Recommended LinkedIn framing
+## Limitation
 
-**Built a PyTorch NLP sentiment-analysis prototype from first principles, implementing BPE tokenization, sequence padding, embeddings, and a binary classification training loop. Documented the limitations of toy datasets and the gap between educational prototypes and production NLP systems.**
+The benchmark dataset is intentionally tiny and educational. Its metrics demonstrate an evaluation workflow, not production-level generalization. A production system should use a larger representative labeled dataset and a locked test set.
+
+## LinkedIn framing
+
+**Built a reproducible NLP sentiment-analysis baseline with TF-IDF and logistic regression, then added held-out evaluation for accuracy, precision, recall, and F1 plus an executable CLI demo and CI tests.**
