@@ -1,1 +1,8 @@
-"""Compatibility entry point for the FastAPI example.\n\nUse `servermodel:app` as the canonical application target.\n"""\n\nfrom servermodel import app\n\n__all__ = ["app"]\n
+"""Compatibility entry point for the FastAPI example.
+
+Use `servermodel:app` as the canonical application target.
+"""
+
+from servermodel import app
+
+__all__ = ["app"]
