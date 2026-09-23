@@ -1,31 +1,39 @@
 # Portfolio Projects
 
-This directory is the curated entry point for the strongest engineering work in the repository.
+This directory is the **recruiter- and LinkedIn-friendly entry point** to the strongest work in the repository.
 
-The original learning archive remains intact so the progression is visible, but these projects are the recommended starting points for reviewers.
+The original learning archive remains available for transparency, but promoted projects follow a consistent engineering presentation.
 
 ## Featured projects
 
-| Project | Location | Skills demonstrated |
+| Project | Location | Engineering focus |
 | --- | --- | --- |
-| Exam Preparation RAG | [Student rags](../Student%20rags/) | PDF ingestion, chunking, TF-IDF, SVD retrieval, Gemini, grounded answers, FastAPI |
-| Dal Bhat Image Classifier | [cnn/foodclassifier](../cnn/foodclassifier/) | PyTorch, transfer learning, ResNet18, class balancing, image inference, Streamlit |
-| Breast Cancer ML Study | [breastcancer.ipynb](../breastcancer.ipynb) | scikit-learn, train/test split, preprocessing, logistic regression, evaluation |
-| Neural Network Fundamentals | [new1](../new1/) | PyTorch, MLP, BCEWithLogitsLoss, reproducible training, model serving |
+| Exam Preparation RAG | [Student rags](../Student%20rags/) | PDF ingestion, retrieval, Gemini, grounded generation, FastAPI |
+| Dal Bhat Image Classifier | [cnn/foodclassifier](../cnn/foodclassifier/) | PyTorch, ResNet18, transfer learning, class balancing, Streamlit |
+| Breast Cancer Classification | [Notebook](../breastcancer.ipynb) | scikit-learn, preprocessing, logistic regression, evaluation |
+| PyTorch MLP API | [new1](../new1/) | PyTorch, reproducible training, model persistence, FastAPI |
+| NLP Sentiment Analysis | [Project page](nlp-sentiment-analysis/) | BPE tokenization, embeddings, PyTorch |
+| LLM Agent with Memory | [Project page](llm-agent-memory/) | Gemini, agent tools, LangGraph/LangChain, SQLite |
+| RAG Retrieval Lab | [Project page](rag-retrieval-lab/) | Retrieval, vector representations, RAG experimentation |
 
-## How to evaluate a project
+## What makes a project portfolio-ready?
 
-For each featured project, look for:
+A promoted project should contain:
 
-- clear problem definition
+- a clear problem statement
+- architecture/pipeline
+- technology stack
 - reproducible setup
-- separated training/inference logic
-- input validation
-- evaluation metrics
-- documented limitations
-- tests where practical
-- no secrets or generated local artifacts
+- meaningful evaluation
+- limitations and failure modes
+- inference/demo instructions
+- secure configuration
+- maintainable source code
+
+See [PROJECT_STANDARD.md](PROJECT_STANDARD.md).
 
 ## Learning archive
 
-The rest of the repository contains notebooks and exercises from the learning process. They are intentionally retained as evidence of progression, but they are not all production-ready applications.
+The remaining notebooks and exercises are intentionally retained as evidence of progression. They are not automatically described as production systems.
+
+When an archive experiment becomes strong enough for a portfolio, promote it into a dedicated project page and, where useful, a standalone implementation.
