@@ -1,46 +1,42 @@
+"""Streamlit inference UI for the Dal Bhat classifier."""
+
 from pathlib import Path
 import sys
 
 import streamlit as st
 from PIL import Image
 
-
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from train import (  # noqa: E402
-    MODEL_PATH,
-    load_model,
-    load_scene_model,
-    predict,
-    train_model,
-)
+
+from train import MODEL_PATH, load_model, load_scene_model, predict  # noqa: E402
 
 
 st.set_page_config(page_title="Dal Bhat Classifier", page_icon="🍛")
 st.title("Dal Bhat Classifier")
-st.write("Upload a food image to check whether it is dal bhat.")
+st.write("Upload an image to classify it as dal bhat, not dal bhat, or uncertain.")
 st.warning(
-    "This model is trained only on the images in the datasets folder. "
-    "Add more varied non-dal-bhat and human/background images for reliable rejection."
+    "This model is trained on the local dataset only. Results are limited by "
+    "dataset size, diversity, labeling quality, and image conditions."
 )
 
 
 @st.cache_resource
-def get_model():
+def get_models():
+    """Load the trained classifier and optional scene model."""
+    if not MODEL_PATH.is_file():
+        raise FileNotFoundError(
+            "Trained model not found. Run python train.py in this folder first."
+        )
+    model = load_model()
     scene_model, scene_categories = load_scene_model()
-    if MODEL_PATH.exists():
-        return load_model(), scene_model, scene_categories, None
-    model, accuracy = train_model(epochs=30)
-    return model, scene_model, scene_categories, accuracy
+    return model, scene_model, scene_categories
 
 
 try:
-    model, scene_model, scene_categories, validation_accuracy = get_model()
+    model, scene_model, scene_categories = get_models()
 except Exception as error:
     st.error(str(error))
     st.stop()
-
-if validation_accuracy is not None:
-    st.info(f"Model trained successfully. Validation accuracy: {validation_accuracy:.1%}")
 
 uploaded_file = st.file_uploader(
     "Choose an image",
@@ -51,12 +47,13 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
     st.image(image, caption="Uploaded image", width="stretch")
     label, confidence = predict(model, image, scene_model, scene_categories)
+
     if label == "dalbhat":
         st.success(f"Prediction: Dal Bhat ({confidence:.1%} confidence)")
     elif label == "uncertain":
         st.info(
             f"Prediction uncertain ({confidence:.1%} confidence). "
-            "Use a clearer food image or add more training images."
+            "Use a clearer image or add more training examples."
         )
     else:
         st.warning(f"Prediction: Not Dal Bhat ({confidence:.1%} confidence)")
