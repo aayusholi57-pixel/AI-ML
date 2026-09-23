@@ -1,8 +1,8 @@
 # AI Engineering & Machine Learning Portfolio
 
-A structured AI/ML engineering portfolio covering machine learning, deep learning, NLP, computer vision, LLM applications, RAG, agents, APIs, and reproducible experimentation.
+A practical AI/ML engineering portfolio covering classical machine learning, deep learning, NLP, computer vision, RAG, LLM agents, APIs, evaluation, testing, and reproducible experimentation.
 
-> **Portfolio principle:** the repository preserves the learning journey, but the strongest work is promoted into documented, reusable, testable projects.
+> **Portfolio principle:** learning history is preserved as evidence of progression; promoted projects are organized as reusable, documented, testable engineering work.
 
 ## Start here
 
@@ -10,65 +10,65 @@ A structured AI/ML engineering portfolio covering machine learning, deep learnin
 
 | Project | What it demonstrates |
 | --- | --- |
-| [Exam Preparation RAG](Student%20rags/) | PDF ingestion, chunking, retrieval, grounded Gemini generation, FastAPI |
-| [Dal Bhat Image Classifier](cnn/foodclassifier/) | PyTorch, ResNet18 transfer learning, class balancing, Streamlit |
-| [Breast Cancer Classification](breastcancer.ipynb) | scikit-learn, preprocessing, classification, evaluation |
-| [PyTorch MLP API](new1/) | PyTorch training, reproducibility, model persistence, FastAPI |
-| [NLP Sentiment Analysis](projects/nlp-sentiment-analysis/) | Tokenization, embeddings, PyTorch classification |
-| [LLM Agent with Memory](projects/llm-agent-memory/) | Gemini, agent tools, LangGraph/LangChain, SQLite memory |
-| [RAG Retrieval Lab](projects/rag-retrieval-lab/) | Retrieval experiments and RAG architecture |
+| [Exam Preparation RAG](Student%20rags/) | PDF ingestion, chunking, TF-IDF/SVD retrieval, grounded Gemini generation, FastAPI |
+| [Dal Bhat Image Classifier](cnn/foodclassifier/) | PyTorch, ResNet18 transfer learning, class-aware training, Streamlit inference |
+| [Breast Cancer Classification](projects/breast-cancer-classification/) | Leakage-safe preprocessing, Logistic Regression, stratified evaluation |
+| [PyTorch MLP API](new1/) | Deterministic data generation, PyTorch training, persistence, FastAPI inference |
+| [NLP Sentiment Analysis](projects/nlp-sentiment-analysis/) | TF-IDF features, Logistic Regression, precision/recall/F1 evaluation |
+| [LLM Agent with Memory](projects/llm-agent-memory/) | Session-scoped SQLite memory, agent abstractions, Gemini-ready configuration |
+| [RAG Retrieval Lab](projects/rag-retrieval-lab/) | Retrieval experiments, ranking behavior, RAG architecture |
 
 **[Open the full portfolio index →](projects/)**
 
 ## Engineering capabilities
 
-- Python and software fundamentals
-- NumPy, pandas, data cleaning, and visualization
-- scikit-learn machine learning workflows
-- Feature preprocessing and model evaluation
-- PyTorch neural networks and training loops
-- CNN and transfer-learning workflows
-- NLP tokenization, embeddings, and classification
-- LLM APIs and prompt design
-- Retrieval-Augmented Generation
-- Agents, tool calling, and memory
-- FastAPI inference services
-- Streamlit ML interfaces
-- Git, GitHub, testing, linting, and CI
+- Python, packaging, virtual environments, and clean module design
+- NumPy, pandas, visualization, and data preparation
+- scikit-learn pipelines, preprocessing, validation, and metrics
+- PyTorch tensors, autograd, neural networks, and training loops
+- CNNs and transfer learning
+- NLP tokenization, TF-IDF, embeddings, and classification
+- LLM APIs, prompt design, and grounded generation
+- Retrieval-Augmented Generation and semantic search
+- Agent architecture, tools, and persistent memory
+- FastAPI inference services and API validation
+- Streamlit ML applications
+- Git/GitHub workflows, automated tests, linting, and CI
 
-## Portfolio structure
+## Portfolio architecture
 
-~~~
+~~~text
 AI-ML/
-├── projects/                 # curated portfolio entry points
+├── projects/                 # curated, documented portfolio projects
 ├── Student rags/             # Exam Preparation RAG application
 ├── cnn/foodclassifier/       # Dal Bhat computer-vision application
 ├── new1/                     # PyTorch MLP + FastAPI
-├── docs/                     # engineering and audit documentation
-├── tests/                    # automated tests
-├── .github/workflows/        # CI quality checks
-└── learning archive/         # original experiments and notebooks
+├── docs/                     # portfolio standards and engineering audits
+├── tests/                    # core automated tests
+├── learning-history/         # curated map of the learning progression
+├── day22 ... day34/          # original learning experiments
+└── .github/workflows/        # automated project validation
 ~~~
 
-The learning archive is intentionally preserved. Historical notebook names are not treated as portfolio project names unless the work has been promoted and documented.
+Historical notebooks are intentionally preserved. They show how the work evolved and are clearly separated from the maintained project implementations.
 
 ## Engineering standards
 
-Promoted projects aim to provide:
+Promoted projects follow these principles where applicable:
 
-- clear problem definition
-- reproducible setup
-- explicit dependencies
+- clear problem definition and scope
+- reproducible execution
+- explicit, pinned dependencies
 - path-safe code
 - input validation
-- separated training and inference
-- evaluation metrics where meaningful
+- training/inference separation
+- meaningful evaluation metrics
 - documented limitations
-- tests for important behavior
+- automated tests
 - environment-based secrets
-- no local databases, caches, checkpoints, or credentials in source control
+- no local databases, model checkpoints, caches, or credentials committed as runtime artifacts
 
-See [Portfolio Project Standard](projects/PROJECT_STANDARD.md) and [Code Audit](docs/CODE_AUDIT.md).
+See [Portfolio Project Standard](projects/PROJECT_STANDARD.md), [Portfolio Guide](docs/PORTFOLIO.md), and [Code Audit](docs/CODE_AUDIT.md).
 
 ## Environment
 
@@ -76,23 +76,18 @@ Python 3.10+ is the baseline.
 
 ~~~bash
 python -m venv .venv
+python -m pip install -r requirements.txt
 ~~~
 
 Windows PowerShell:
 
 ~~~powershell
-.\\.venv\\Scripts\\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ~~~
 
-Install the core environment:
+Individual applications have their own dependency files when they need isolated stacks.
 
-~~~bash
-python -m pip install -r requirements.txt
-~~~
-
-Individual portfolio applications may have their own dependency files.
-
-## Maintained APIs
+## Run the maintained APIs
 
 ### Core FastAPI example
 
@@ -114,7 +109,9 @@ python new1/train.py
 uvicorn new1.main:app --reload
 ~~~
 
-## Quality checks
+## Quality gates
+
+Run the core checks locally:
 
 ~~~bash
 python -m py_compile model.py route.py servermodel.py
@@ -122,29 +119,38 @@ pytest
 ruff check model.py route.py servermodel.py tests
 ~~~
 
-CI runs these checks for the maintained core entry points.
+GitHub Actions also validates the maintained MLP, RAG retrieval, vision, NLP, breast-cancer, and agent projects with dedicated jobs.
 
 ## Security
 
-Never commit API keys, passwords, tokens, private data, local databases, or generated credentials.
+Never commit API keys, passwords, access tokens, private data, local databases, or generated credentials.
 
-If a credential is ever committed, remove it from the working tree **and rotate/revoke it immediately**. Historical notebook outputs should also be reviewed before public sharing.
+If a credential is ever committed, remove it from the working tree **and rotate/revoke it at the provider**. Historical notebook outputs should be treated as potentially sensitive and reviewed before redistribution.
+
+## Learning progression
+
+The current learning-history map covers Days 22–34:
+
+**traditional ML → NLP/vector representations → semantic search → PyTorch → sentiment classification → text analysis → RAG → RAG evaluation → LLM agents with memory**
+
+See [Learning History — Days 22–34](learning-history/).
 
 ## For recruiters and LinkedIn viewers
 
-If you arrive here from LinkedIn, start with:
+Recommended path:
 
 1. [Portfolio Projects](projects/)
 2. [Exam Preparation RAG](Student%20rags/)
 3. [Dal Bhat Image Classifier](cnn/foodclassifier/)
-4. [PyTorch MLP API](new1/)
-5. [LLM Agent with Memory](projects/llm-agent-memory/)
-6. [NLP Sentiment Analysis](projects/nlp-sentiment-analysis/)
+4. [Breast Cancer Classification](projects/breast-cancer-classification/)
+5. [PyTorch MLP API](new1/)
+6. [LLM Agent with Memory](projects/llm-agent-memory/)
+7. [NLP Sentiment Analysis](projects/nlp-sentiment-analysis/)
 
-Each promoted project is documented around **problem → architecture → implementation → evaluation → limitations → future improvements**.
+Each promoted project is organized around **problem → architecture → implementation → evaluation → limitations → future improvements**.
 
 ## Author
 
 **Aayush Oli**
 
-AI/ML engineering learner building practical systems across machine learning, deep learning, NLP, computer vision, RAG, agents, and AI application development.
+AI/ML engineer-in-training building practical systems across machine learning, deep learning, NLP, computer vision, RAG, agents, APIs, and software engineering.
