@@ -1,50 +1,84 @@
 # Code and Notebook Audit
 
-This audit separates maintained portfolio code from historical learning material.
+This audit separates maintained portfolio code from historical learning material and records the engineering hardening applied to the repository.
 
-## Repository inventory
+## Current inventory
 
 - Python files: 101
 - Jupyter notebooks: 118
-- The repository keeps the learning archive, so not every file is expected to be production-ready.
+- The learning archive remains intentionally preserved.
 
-## Findings from the focused audit
+## Engineering hardening completed
 
-### Repaired
+### Core Python
 
-- Exam RAG: removed import-time API-key failure, model/client side effects, and unstructured startup work. Added validation, deterministic file ordering, cached knowledge-base construction, and a FastAPI interface.
-- PyTorch MLP API: removed working-directory assumptions for model weights, added an explicit missing-model response, deterministic dataset generation, and separated training from persistence.
-- Empty RAG app: replaced the empty module with a usable FastAPI application.
-- Portfolio documentation: added a curated project index and project-specific setup/architecture documentation.
-- Dependency boundaries: added dedicated dependency files for the RAG and computer-vision applications.
+- Sentiment model loading is now lazy, preventing model download/network work during import.
+- FastAPI examples use validation and path-safe application structure.
+- PyTorch MLP training uses deterministic dataset generation and explicit model persistence.
+- MLP inference loads weights safely on CPU and reports a clear missing-model response.
 
-### Notebook quality signals
+### Computer vision
 
-The focused notebook review found several historical notebooks containing saved error outputs and empty code cells. Examples included:
+- Dal Bhat Streamlit application is inference-only at startup.
+- Training is an explicit command instead of an expensive hidden side effect.
+- CV training uses deterministic seeds, validated class folders, balanced sampling, versioned checkpoints, and a reproducible split.
+- Model loading uses CPU-safe state loading.
+
+### RAG
+
+- Exam Preparation RAG was separated into reusable retrieval/generation functions.
+- Importing the RAG engine does not require an API key or perform model calls.
+- PDF loading, chunking, retrieval parameters, and source metadata are validated.
+- Knowledge-base construction is cached.
+- FastAPI exposes a documented /ask interface.
+
+### Portfolio structure
+
+Dedicated portfolio documentation now exists for:
+
+- Exam Preparation RAG
+- Dal Bhat Image Classifier
+- PyTorch MLP API
+- NLP Sentiment Analysis
+- LLM Agent with Memory
+- RAG Retrieval Lab
+
+A shared project standard defines the expected portfolio structure: problem, architecture, stack, reproducibility, evaluation, limitations, inference, and future improvements.
+
+## Notebook quality signals
+
+The focused notebook review found historical notebooks containing saved errors and empty cells. Examples included:
 
 - rag_again_full_pipeline.ipynb: 7 saved error outputs and 13 empty code cells
 - sentiment_analysis.ipynb: 3 saved error outputs and 15 empty code cells
 - Student rags/Exampreparation_RAG.ipynb: 3 saved error outputs and 57 empty code cells
 - real_life_gemini_ai_agent.ipynb: 2 empty code cells
-- project5.ipynb: a single empty code cell
+- project5.ipynb: 1 empty code cell
 - cnn/cnn10.ipynb: 9 empty code cells
 
-These are treated as learning artifacts rather than silently rewritten experiments. The curated READMEs point reviewers toward maintained implementations.
+These notebooks are retained as learning evidence. Promoted project pages point reviewers toward maintained implementations rather than pretending every historical cell is production-ready.
 
-## Duplicate/dead-code observations
+## Security finding and remediation
 
-There are repeated concepts and filenames across the learning archive, including multiple sentiment, RAG, student-analysis, and CNN notebooks. Some small scripts also duplicate introductory exercises. Because notebook-relative paths and imports can depend on the existing layout, wholesale renaming or deletion would be risky without a migration and execution pass.
+A historical agent notebook contained a hardcoded Google API credential in source. The credential was removed and replaced with environment-variable configuration.
 
-The portfolio structure therefore promotes the strongest implementations while preserving the original learning evidence.
+**Action required outside Git history:** if that credential was real and ever usable, it must be revoked/rotated at the provider. Removing it from the latest tree does not invalidate a credential that may exist in earlier commits.
 
-## Quality policy going forward
+Future notebook review should also inspect saved outputs for accidentally exposed credentials before public publication.
 
-New portfolio projects should include:
+## Naming and archive strategy
+
+Wholesale renaming of historical folders was deliberately avoided where notebook-relative paths, imports, datasets, or binary assets could break. Portfolio-facing project names are standardized in the curated project index while historical learning paths remain stable.
+
+## Quality policy
+
+New promoted projects should include:
 
 - clear README and architecture
 - explicit dependencies
 - deterministic or documented data preparation
 - input validation
-- tests for important behaviour
+- tests for important behavior
 - evaluation metrics and limitations
 - no secrets or generated local artifacts
+- a clear distinction between experiment, demo, and production-ready component
