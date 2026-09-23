@@ -10,65 +10,70 @@ jobs:
     name: Core API checks
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           cache: "pip"
-      - name: Install core dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Install test tooling
-        run: python -m pip install pytest ruff
-      - name: Compile maintained entry points
-        run: python -m py_compile model.py route.py servermodel.py
-      - name: Run core tests
-        run: pytest tests
-      - name: Lint maintained entry points
-        run: ruff check model.py route.py servermodel.py tests
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pip install pytest ruff
+      - run: python -m py_compile model.py route.py servermodel.py
+      - run: pytest tests
+      - run: ruff check model.py route.py servermodel.py tests
 
   mlp:
     name: PyTorch MLP execution test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Install project dependencies
-        run: python -m pip install -r requirements.txt && python -m pip install torch==2.5.1 pytest httpx
-      - name: Train and validate MLP
-        run: pytest tests/test_project_mlp.py -q
+      - run: python -m pip install -r requirements.txt && python -m pip install torch==2.5.1 pytest httpx
+      - run: pytest tests/test_project_mlp.py -q
 
   rag:
     name: Exam RAG retrieval execution test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Install RAG dependencies
-        run: python -m pip install -r "Student rags/requirements-rag.txt" pytest
-      - name: Ingest PDFs and execute retrieval
-        run: pytest "Student rags/test_rag_engine.py" -q
+      - run: python -m pip install -r "Student rags/requirements-rag.txt" pytest
+      - run: pytest "Student rags/test_rag_engine.py" -q
 
   vision:
     name: Dal Bhat CV execution test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Install CV dependencies
-        run: python -m pip install -r "cnn/foodclassifier/requirements-food.txt" pytest
-      - name: Train for one epoch and run inference
-        run: pytest "cnn/foodclassifier/test_train.py" -q
+      - run: python -m pip install -r "cnn/foodclassifier/requirements-food.txt" pytest
+      - run: pytest "cnn/foodclassifier/test_train.py" -q
+
+  nlp:
+    name: NLP sentiment evaluation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: python -m pip install -r "projects/nlp-sentiment-analysis/requirements.txt" pytest
+      - run: pytest "projects/nlp-sentiment-analysis/test_sentiment.py" -q
+      - run: python "projects/nlp-sentiment-analysis/sentiment.py"
+
+  agent:
+    name: LLM agent memory execution test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: python -m pip install -r "projects/llm-agent-memory/requirements.txt" pytest
+      - run: pytest "projects/llm-agent-memory/test_agent.py" -q
+      - run: python "projects/llm-agent-memory/demo.py"
