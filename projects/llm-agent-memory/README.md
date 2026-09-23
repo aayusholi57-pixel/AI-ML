@@ -2,31 +2,53 @@
 
 ## Portfolio summary
 
-An AI-agent experiment exploring tool use, conversational memory, SQLite persistence, and Gemini integration through LangChain and LangGraph.
+An agent-engineering project centered on long-term conversational memory. The original Gemini + LangChain notebook remains as the learning/reference implementation, while this folder contains an **offline-first executable SQLite memory harness** that can be tested without an API key.
 
 ## Architecture
 
-User → Agent → Gemini
-              ↓
-        Memory tools
-              ↓
-            SQLite
+```text
+User
+ ↓
+Agent harness
+ ├── recent context
+ └── SQLite memory → keyword retrieval
+ ↓
+Optional Gemini generation
+```
 
-The design separates recent conversation context from persisted notes and tasks.
+## Execution
+
+```bash
+python demo.py
+pytest -q
+```
+
+The demo stores memories, retrieves relevant context, and reports the stored-message count.
+
+## Evaluation
+
+The execution suite verifies SQLite persistence, relevant-memory retrieval, session isolation, and offline API-key configuration detection. These are **system-behavior tests**, not fabricated LLM quality scores.
+
+Live generation quality should be evaluated separately with a labeled task set and a provider/API key.
+
+## Live Gemini path
+
+The historical `real_life_gemini_ai_agent.ipynb` contains the Gemini + LangChain implementation. Keep `GOOGLE_API_KEY` in the environment only; never commit secrets.
 
 ## Engineering focus
 
-- LLM application architecture
-- Agent tool calling
-- Persistent memory
-- SQLite data access
-- LangChain / LangGraph
-- Environment-based API credentials
+- Agent harness design
+- Long-term memory
+- SQLite persistence
+- Retrieval tools
+- Session isolation
+- Offline testability
+- Optional LLM integration
 
-## Security note
+## Limitation
 
-Credentials must be supplied through environment variables. Historical notebooks are learning artifacts and should never contain real API keys.
+The current local retrieval layer is keyword based. For large archives, a production version should add FTS5 and/or semantic embeddings, then measure retrieval recall and downstream answer quality on a fixed evaluation set.
 
-## Recommended LinkedIn framing
+## LinkedIn framing
 
-**Built an LLM agent prototype with Gemini, LangChain/LangGraph, tool calling, and SQLite-backed memory. Explored how agents can retrieve and update persistent user context without sending an entire conversation history on every request.**
+**Built an offline-testable LLM agent memory layer with SQLite persistence, session isolation, relevant-memory retrieval, and an optional Gemini/LangChain integration path. Added executable demos and CI tests so the system is demonstrable without relying on an API key.**
