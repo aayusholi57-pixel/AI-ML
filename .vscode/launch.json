@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run food classifier",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/cnn/foodclassifier/train.py",
+            "cwd": "${workspaceFolder}/cnn/foodclassifier",
+            "console": "integratedTerminal"
+        }
+    ]
+}

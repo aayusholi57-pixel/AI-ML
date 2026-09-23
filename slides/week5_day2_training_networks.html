@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saarathi AI/ML · Week 5 · Day 2 — Training a Network Well</title>
+<style>
+  :root{
+    --navy:#16233f; --navy-2:#1f3057; --orange:#f7941e; --orange-2:#ff8c00;
+    --ink:#1b2230; --muted:#5c6a7e; --bg:#ffffff; --panel:#f4f6fa; --panel-line:#e3e8f0;
+    --green:#e8f6ee; --green-ink:#1c7a45; --code-bg:#0f1a2e; --code-ink:#e7edf7;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--font); background:#0b1220; color:var(--ink); overflow:hidden;}
+  .deck{position:fixed; inset:0;}
+  .slide{position:absolute; inset:0; display:none; flex-direction:column; background:var(--bg); padding:64px 88px 78px;}
+  .slide.active{display:flex; animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  @media (min-aspect-ratio: 16/9){ .slide{width:calc(100vh * 16 / 9); left:50%; transform:translateX(-50%);} .slide.active{transform:translateX(-50%);} }
+  .brand{display:flex; align-items:center; gap:12px; position:absolute; top:30px; left:88px; right:88px;}
+  .brand .mark{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,var(--orange),var(--orange-2));display:inline-block;}
+  .brand .name{font-weight:800; color:var(--navy); font-size:15px; letter-spacing:.2px;}
+  .brand .name span{color:var(--muted); font-weight:600;}
+  .brand .tag{margin-left:auto; font-size:12px; font-weight:700; color:var(--orange-2); text-transform:uppercase; letter-spacing:1.5px;}
+  h1{font-size:52px; line-height:1.05; color:var(--navy); font-weight:800; letter-spacing:-.5px;}
+  h2{font-size:38px; line-height:1.12; color:var(--navy); font-weight:800; letter-spacing:-.3px; margin-bottom:22px;}
+  h2 .accent{color:var(--orange-2);}
+  .kicker{font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:var(--orange-2); margin-bottom:14px;}
+  p{font-size:21px; line-height:1.5; color:var(--ink);}
+  .lead{font-size:24px; color:var(--muted); line-height:1.5;}
+  .body{flex:1; display:flex; flex-direction:column; justify-content:center;}
+  ul.points{list-style:none; display:flex; flex-direction:column; gap:16px; margin-top:6px;}
+  ul.points li{position:relative; padding-left:34px; font-size:22px; line-height:1.45; color:var(--ink);}
+  ul.points li::before{content:""; position:absolute; left:0; top:9px; width:14px;height:14px;border-radius:4px;background:linear-gradient(135deg,var(--orange),var(--orange-2));}
+  ul.points li b{color:var(--navy);}
+  .sub{color:var(--muted); font-size:18px;}
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:34px;}
+  .grid{display:grid; gap:18px;}
+  .grid.g3{grid-template-columns:repeat(3,1fr);}
+  .grid.g2{grid-template-columns:repeat(2,1fr);}
+  .card{background:var(--panel); border:1px solid var(--panel-line); border-radius:14px; padding:20px 22px;}
+  .card .num{font-size:12px; font-weight:800; color:var(--orange-2); letter-spacing:1px;}
+  .card h3{font-size:20px; color:var(--navy); margin:6px 0 8px; font-weight:800;}
+  .card p{font-size:16px; color:var(--muted); line-height:1.4;}
+  pre{background:var(--code-bg); color:var(--code-ink); border-radius:14px; padding:24px 26px; font-family:var(--mono); font-size:19px; line-height:1.6; overflow:auto; box-shadow:0 20px 40px -24px rgba(15,26,46,.6);}
+  pre.sm{font-size:17px;}
+  pre.xs{font-size:14.5px; line-height:1.5;}
+  pre .cm{color:#7c8db5;} pre .kw{color:#ff9e6b;} pre .st{color:#8dd59a;} pre .nm{color:#7fc7ff;} pre .ty{color:#c8a6ff;} pre .hi{color:#ff8c6b; font-weight:700;} pre .ok{color:#8dd59a; font-weight:700;}
+  code.inline{font-family:var(--mono); background:#eef1f7; color:var(--navy); padding:2px 8px; border-radius:6px; font-size:.92em;}
+  .callout{background:var(--green); border-left:6px solid var(--green-ink); border-radius:12px; padding:22px 26px;}
+  .callout .lbl{font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--green-ink); margin-bottom:8px;}
+  .callout p, .callout li{color:#1d3a29;}
+  .callout ul{list-style:none; display:flex; flex-direction:column; gap:8px;}
+  .callout ul li{padding-left:24px; position:relative; font-size:19px;}
+  .callout ul li::before{content:"→"; position:absolute; left:0; color:var(--green-ink); font-weight:800;}
+  .warn{background:#fff4e2; border-left:6px solid var(--orange-2); border-radius:12px; padding:18px 24px; margin-top:20px;}
+  .warn b{color:var(--navy);}
+  .slide.section{background:var(--navy); justify-content:center;}
+  .slide.section .brand .name{color:#fff;} .slide.section .brand .name span{color:#9fb0cc;}
+  .slide.section .kicker{color:var(--orange);} .slide.section h1{color:#fff;} .slide.section p{color:#c3cee0;}
+  .slide.section .rule{width:80px;height:6px;border-radius:4px;background:var(--orange);margin:24px 0;}
+  .slide.title{background:radial-gradient(1200px 600px at 78% -10%, #22345c 0%, var(--navy) 55%);}
+  .slide.title .brand .name{color:#fff;} .slide.title .brand .name span{color:#9fb0cc;}
+  .slide.title h1{color:#fff; font-size:58px; max-width:16ch;}
+  .slide.title .course{color:var(--orange); font-weight:800; letter-spacing:2px; text-transform:uppercase; font-size:14px; margin-bottom:18px;}
+  .slide.title .meta{display:flex; gap:14px; margin-top:34px; flex-wrap:wrap;}
+  .slide.title .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); color:#dbe4f2; padding:10px 16px; border-radius:999px; font-size:15px; font-weight:600;}
+  .slide.title .pill b{color:#fff;}
+  .footer{position:absolute; bottom:26px; left:88px; right:88px; display:flex; align-items:center; justify-content:space-between; font-size:13px; color:var(--muted);}
+  .footer .who{font-weight:600;}
+  .progress{position:absolute; bottom:0; left:0; height:5px; background:linear-gradient(90deg,var(--orange),var(--orange-2)); transition:width .3s ease;}
+  .counter{font-variant-numeric:tabular-nums; font-weight:700; color:var(--navy);}
+  .nav{position:fixed; bottom:20px; right:24px; display:flex; gap:8px; z-index:20;}
+  .nav button{width:40px;height:40px;border:none;border-radius:10px; cursor:pointer; background:#fff; color:var(--navy); font-size:18px; box-shadow:0 6px 18px -8px rgba(0,0,0,.5);}
+  .nav button:hover{background:var(--orange); color:#fff;}
+  .hint{position:fixed; bottom:28px; left:24px; font-size:12px; color:#6b7890; z-index:20;}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- ============ 1 · TITLE ============ -->
+  <section class="slide title active">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· for Digital Excellence</span></span></div>
+    <div class="body">
+      <div class="course">AI Engineering &amp; Machine Learning · TR-10</div>
+      <h1>Week 5 · Day 2<br>Training a Network Well</h1>
+      <div class="meta">
+        <span class="pill"><b>Phase 2</b> · Modern AI</span>
+        <span class="pill"><b>2 hours</b> · hands-on</span>
+        <span class="pill">loss curve · learning rate · overfitting</span>
+      </div>
+    </div>
+    <div class="footer"><span class="who">Old Baneshwor, Kathmandu · saarathiacademy.com.np</span></div>
+  </section>
+
+  <!-- ============ 2 · RECALL ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Warm-up</span></div>
+    <div class="body">
+      <div class="kicker">60-second recall · from Day 20</div>
+      <h2>Before we start — still sharp?</h2>
+      <ul class="points">
+        <li>What two steps make up a single neuron? (weighted sum + activation)</li>
+        <li>What are the four steps of the training loop? (forward → loss → backprop → nudge)</li>
+        <li>What does <code class="inline">max_iter</code> control?</li>
+      </ul>
+      <div class="warn"><b>Yesterday we built a network. Today we train it <i>well</i></b> — the difference between a model that works and one that just runs.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 3 · THE KNOBS ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">The idea</span></div>
+    <div class="body">
+      <div class="kicker">Training isn't automatic — you steer it</div>
+      <h2>Three knobs that decide success</h2>
+      <div class="grid g3">
+        <div class="card"><div class="num">HOW LONG</div><h3>Epochs</h3><p>How many training steps. Watch the <b>loss curve</b> fall and flatten.</p></div>
+        <div class="card"><div class="num">HOW BIG A STEP</div><h3>Learning rate</h3><p>Too small crawls, too big overshoots. Find the middle.</p></div>
+        <div class="card"><div class="num">WHEN TO STOP</div><h3>Overfitting</h3><p>Networks memorise. Stop before they do (Day 14, again).</p></div>
+      </div>
+      <div class="warn"><b>Same tool as Day 20</b> (<code class="inline">MLPClassifier</code>) — today we learn to <i>read what it's doing</i> and adjust.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 4 · SECTION: LOSS ============ -->
+  <section class="slide section">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span></div>
+    <div class="body">
+      <div class="kicker">Part 1</div>
+      <h1>The loss curve</h1>
+      <div class="rule"></div>
+      <p>Training, made visible: watch "how wrong" fall step by step.</p>
+    </div>
+  </section>
+
+  <!-- ============ 5 · EPOCHS & LOSS ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Loss curve</span></div>
+    <div class="body">
+      <div class="kicker">One step = a little less wrong</div>
+      <h2>Epochs &amp; the loss</h2>
+      <ul class="points">
+        <li><b>Loss</b> = one number for "how wrong the network is right now" (Day 20).</li>
+        <li>Each training step nudges the weights to lower it. An <b>epoch</b> ≈ one full pass over the data.</li>
+        <li><code class="inline">MLPClassifier</code> records the loss after every step in <code class="inline">.loss_curve_</code> — so we can watch it.</li>
+      </ul>
+      <div class="warn"><b>Reading the loss curve is the #1 skill of training.</b> It tells you if the network is learning, stuck, or done.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 6 · LOSS CODE ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Live code · loss_curve.py</span></div>
+    <div class="body">
+      <div class="kicker">Watch the loss fall</div>
+      <h2>The loss curve — full code</h2>
+      <pre class="xs" style="font-size:13px; line-height:1.42;"><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.neural_network <span class="kw">import</span> MLPClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+<span class="nm">X</span>, <span class="nm">y</span> = load_breast_cancer(return_X_y=<span class="kw">True</span>)          <span class="cm"># real data (Day 16)</span>
+<span class="nm">X_tr</span>, X_te, y_tr, y_te = train_test_split(X, y, test_size=<span class="kw">0.2</span>, random_state=<span class="kw">42</span>, stratify=y)
+<span class="nm">sc</span> = StandardScaler().fit(X_tr)                     <span class="cm"># scale — nets need it</span>
+<span class="nm">X_tr</span>, X_te = sc.transform(X_tr), sc.transform(X_te)
+
+<span class="nm">mlp</span> = MLPClassifier(hidden_layer_sizes=(<span class="kw">32</span>,), max_iter=<span class="kw">200</span>, random_state=<span class="kw">42</span>)
+<span class="nm">mlp</span>.fit(X_tr, y_tr)
+<span class="nm">lc</span> = mlp.loss_curve_                                <span class="cm"># loss after each step</span>
+<span class="nm">print</span>(lc[<span class="kw">0</span>], lc[<span class="kw">10</span>], lc[-<span class="kw">1</span>])                       <span class="cm"># 0.961  0.314  0.036</span></pre>
+      <div class="warn"><b>Loss fell 0.961 → 0.036.</b> Train accuracy 0.991, test 0.956 — the network learned, and it generalises.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 7 · READING THE CURVE ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Loss curve</span></div>
+    <div class="body">
+      <div class="kicker">What the shape tells you</div>
+      <h2>Reading the curve</h2>
+      <div class="cols">
+        <div>
+          <pre class="sm"><span class="cm"># loss_curve_ over 200 steps</span>
+step 0    <span class="hi">0.961</span>   ↓ falling fast
+step 10   <span class="kw">0.314</span>
+step 50   <span class="kw">0.08</span>
+step 200  <span class="ok">0.036</span>   ← flat = settled</pre>
+        </div>
+        <div>
+          <ul class="points">
+            <li><b>Falling:</b> good — it's learning.</li>
+            <li><b>Flat &amp; low:</b> done — more steps won't help.</li>
+            <li><b>Flat &amp; high:</b> stuck — bad learning rate or too small a network.</li>
+            <li><b>Jumping around:</b> learning rate too big.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="warn"><b>Always plot it:</b> <code class="inline">import matplotlib.pyplot as plt; plt.plot(mlp.loss_curve_)</code>. One glance tells you what to fix.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 8 · EXERCISE 1 ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Do it now</span></div>
+    <div class="body">
+      <div class="kicker">Hands-on · 15 minutes</div>
+      <h2>Exercise 1 — Watch it learn</h2>
+      <div class="callout">
+        <div class="lbl">Exercise · loss_curve.py</div>
+        <ul>
+          <li>Train an <code class="inline">MLPClassifier(hidden_layer_sizes=(32,), max_iter=200)</code> on the cancer data.</li>
+          <li>Print <code class="inline">loss_curve_[0]</code>, <code class="inline">[10]</code>, and <code class="inline">[-1]</code>. Does it fall then flatten?</li>
+          <li>Plot the whole curve with matplotlib.</li>
+        </ul>
+      </div>
+      <div class="warn"><b>Stretch:</b> set <code class="inline">max_iter=20</code>. Is the loss still high? (It stopped before settling — underfit.)</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 9 · SECTION: LEARNING RATE ============ -->
+  <section class="slide section">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span></div>
+    <div class="body">
+      <div class="kicker">Part 2</div>
+      <h1>The learning rate</h1>
+      <div class="rule"></div>
+      <p>The single most important number to get right.</p>
+    </div>
+  </section>
+
+  <!-- ============ 10 · LEARNING RATE CONCEPT ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Learning rate</span></div>
+    <div class="body">
+      <div class="kicker">How big a step downhill</div>
+      <h2>Too small, too big, just right</h2>
+      <div class="cols">
+        <div>
+          <ul class="points">
+            <li>Each step: <code class="inline">new = old − rate × slope</code>. The <b>rate</b> is the step size.</li>
+            <li><b>Too small:</b> tiny steps — never arrives in the time you give it.</li>
+            <li><b>Too big:</b> leaps past the bottom, bounces around, never settles.</li>
+            <li><b>Just right:</b> down the hill quickly and stops at the bottom.</li>
+          </ul>
+        </div>
+        <div>
+          <pre class="sm"><span class="cm"># rolling a ball into a valley</span>
+tiny steps   → <span class="hi">still up the slope</span>
+huge leaps   → <span class="hi">bouncing wall to wall</span>
+good steps   → <span class="ok">rests at the bottom</span></pre>
+        </div>
+      </div>
+      <div class="warn"><b>In sklearn:</b> <code class="inline">learning_rate_init=0.001</code> is the default. It's the first thing to try changing if training struggles.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 11 · LR CODE ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Live code · learning_rate.py</span></div>
+    <div class="body">
+      <div class="kicker">Sweep the step size, watch the loss</div>
+      <h2>Learning rate — full code</h2>
+      <pre class="xs" style="font-size:13px; line-height:1.42;"><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.neural_network <span class="kw">import</span> MLPClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+<span class="nm">X</span>, <span class="nm">y</span> = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+<span class="nm">X_tr</span>, X_te, y_tr, y_te = train_test_split(X, y, test_size=<span class="kw">0.2</span>, random_state=<span class="kw">42</span>, stratify=y)
+<span class="nm">sc</span> = StandardScaler().fit(X_tr); <span class="nm">X_tr</span>, X_te = sc.transform(X_tr), sc.transform(X_te)
+
+<span class="kw">for</span> lr <span class="kw">in</span> [<span class="kw">0.0001</span>, <span class="kw">0.001</span>, <span class="kw">0.01</span>, <span class="kw">0.1</span>, <span class="kw">1.0</span>]:
+    <span class="nm">mlp</span> = MLPClassifier(hidden_layer_sizes=(<span class="kw">32</span>,), learning_rate_init=lr,
+                        max_iter=<span class="kw">200</span>, random_state=<span class="kw">42</span>).fit(X_tr, y_tr)
+    <span class="nm">print</span>(lr, round(mlp.loss_curve_[-<span class="kw">1</span>], <span class="kw">3</span>), round(mlp.score(X_te, y_te), <span class="kw">3</span>))</pre>
+      <div class="warn"><b>Watch the final loss:</b> 0.0001 → <b>0.202</b> (barely moved), 0.001 → 0.036, 0.01 → <b>0.003</b> (fast &amp; low). Tiny rate = hasn't arrived.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 12 · LR RESULT ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Result</span></div>
+    <div class="body">
+      <div class="kicker">Same network, same steps — only the rate changed</div>
+      <h2>The step size decides how far you get</h2>
+      <pre class="sm"><span class="cm"># learning_rate   final_loss   test_acc  (200 steps each)</span>
+0.0001          <span class="hi">0.202</span>       0.947     <span class="cm"># too small — still high up the hill</span>
+0.001           0.036       0.956
+0.01            <span class="ok">0.003</span>       0.956     <span class="cm"># fast AND low — the sweet spot</span>
+0.1             0.001       0.956
+1.0             0.012       0.956     <span class="cm"># starting to overshoot</span></pre>
+      <div class="warn"><b>The pattern:</b> a tiny rate leaves the loss stuck high; a good rate drives it near zero in the same number of steps. On a harder problem, too big a rate makes the loss <i>bounce</i> instead of fall.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 13 · EXERCISE 2 ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Do it now</span></div>
+    <div class="body">
+      <div class="kicker">Hands-on · 15 minutes</div>
+      <h2>Exercise 2 — Tune the step size</h2>
+      <div class="callout">
+        <div class="lbl">Exercise · learning_rate.py</div>
+        <ul>
+          <li>Loop <code class="inline">learning_rate_init</code> over 0.0001 … 1.0; print the final loss and test accuracy.</li>
+          <li>Which rate reaches the lowest loss fastest?</li>
+          <li>Plot the <code class="inline">loss_curve_</code> for the smallest and a good rate on the same axes.</li>
+        </ul>
+      </div>
+      <div class="warn"><b>Stretch:</b> push the rate to <code class="inline">5.0</code>. Does the loss curve start to jump around instead of falling smoothly?</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 14 · SECTION: OVERFITTING ============ -->
+  <section class="slide section">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span></div>
+    <div class="body">
+      <div class="kicker">Part 3</div>
+      <h1>Overfitting</h1>
+      <div class="rule"></div>
+      <p>Day 14 returns — and it bites neural networks hardest.</p>
+    </div>
+  </section>
+
+  <!-- ============ 15 · OVERFITTING CONCEPT ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Overfitting</span></div>
+    <div class="body">
+      <div class="kicker">Great capacity is a double-edged sword</div>
+      <h2>Memorising is not learning</h2>
+      <ul class="points">
+        <li>A big network has so many weights it can <b>memorise the training rows</b> — even the noise.</li>
+        <li>Sign: <b>train accuracy near 1.0 but test accuracy much lower</b> — a big gap (Day 14).</li>
+        <li>The fix isn't a better model; it's <b>knowing when to stop</b> and keeping the network humble.</li>
+      </ul>
+      <div class="warn"><b>The more powerful the model, the easier it overfits.</b> That's why training well matters more, not less, as models get bigger.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 16 · EARLY STOPPING CODE ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Live code · early_stopping.py</span></div>
+    <div class="body">
+      <div class="kicker">A big net on noisy data — with &amp; without a brake</div>
+      <h2>Early stopping — full code</h2>
+      <pre class="xs" style="font-size:12.5px; line-height:1.4;"><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> make_classification
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.neural_network <span class="kw">import</span> MLPClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+<span class="cm"># noisy data: 15% wrong labels, 35 of 40 features useless</span>
+<span class="nm">X</span>, <span class="nm">y</span> = make_classification(n_samples=<span class="kw">600</span>, n_features=<span class="kw">40</span>, n_informative=<span class="kw">5</span>,
+                           flip_y=<span class="kw">0.15</span>, class_sep=<span class="kw">0.7</span>, random_state=<span class="kw">0</span>)
+<span class="nm">X_tr</span>, X_te, y_tr, y_te = train_test_split(X, y, test_size=<span class="kw">0.4</span>, random_state=<span class="kw">0</span>, stratify=y)
+<span class="nm">sc</span> = StandardScaler().fit(X_tr); <span class="nm">X_tr</span>, X_te = sc.transform(X_tr), sc.transform(X_te)
+<span class="nm">big</span> = dict(hidden_layer_sizes=(<span class="kw">200</span>, <span class="kw">200</span>), max_iter=<span class="kw">1000</span>, random_state=<span class="kw">0</span>)
+
+<span class="nm">plain</span>   = MLPClassifier(**big).fit(X_tr, y_tr)
+<span class="nm">stopped</span> = MLPClassifier(early_stopping=<span class="kw">True</span>, validation_fraction=<span class="kw">0.2</span>, **big).fit(X_tr, y_tr)</pre>
+      <div class="warn"><b>Plain:</b> train <b>1.000</b> / test <b>0.771</b> (gap 0.229 — memorised!). <b>Early stopping:</b> train 0.936 / test <b>0.775</b>, stopped at 40 steps. Smaller gap, better generalisation.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 17 · OTHER GUARDS ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Toolbox</span></div>
+    <div class="body">
+      <div class="kicker">Ways to keep a network honest</div>
+      <h2>Your anti-overfitting toolkit</h2>
+      <div class="grid g2">
+        <div class="card"><div class="num">STOP EARLY</div><h3>early_stopping=True</h3><p>Halt when a validation slice stops improving. The simplest guard.</p></div>
+        <div class="card"><div class="num">PENALISE SIZE</div><h3>alpha (L2)</h3><p>Bigger <code class="inline">alpha</code> keeps weights small, so the network can't contort to fit noise.</p></div>
+        <div class="card"><div class="num">SHRINK IT</div><h3>Smaller network</h3><p>Fewer neurons = less capacity to memorise. Match size to the problem.</p></div>
+        <div class="card"><div class="num">FEED IT</div><h3>More data</h3><p>The best cure of all — harder to memorise a million rows than eighty.</p></div>
+      </div>
+      <div class="warn"><b>Awareness:</b> big deep-learning libraries add <i>dropout</i> (randomly switch off neurons while training). Same goal — stop the network relying on memorised quirks.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 18 · EXERCISE 3 ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Do it now</span></div>
+    <div class="body">
+      <div class="kicker">Hands-on · 20 minutes</div>
+      <h2>Exercise 3 — Catch overfitting</h2>
+      <div class="callout">
+        <div class="lbl">Exercise · early_stopping.py</div>
+        <ul>
+          <li>Train a big net <code class="inline">(200, 200)</code> on the noisy data. Note the train vs test gap (~1.0 vs ~0.77).</li>
+          <li>Add <code class="inline">early_stopping=True</code>. Did the gap shrink? How many steps did it run?</li>
+          <li>Now try <code class="inline">alpha=1.0</code> instead — does that also help?</li>
+        </ul>
+      </div>
+      <div class="warn"><b>Write one sentence:</b> how could you tell the plain network was memorising rather than learning?</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 19 · RECAP ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Recap</span></div>
+    <div class="body">
+      <div class="kicker">What you can now do</div>
+      <h2>Day 21, done ✅</h2>
+      <div class="grid g2">
+        <div class="card"><h3>Loss curve</h3><p>Read <code class="inline">loss_curve_</code> — learning, stuck, or done.</p></div>
+        <div class="card"><h3>Learning rate</h3><p>Too small crawls, too big overshoots; tune it first.</p></div>
+        <div class="card"><h3>Overfitting</h3><p>Spot the train/test gap — memorising ≠ learning.</p></div>
+        <div class="card"><h3>Guards</h3><p>Early stopping, alpha, smaller net, more data.</p></div>
+      </div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 20 · HOMEWORK ============ -->
+  <section class="slide">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span><span class="tag">Self-study</span></div>
+    <div class="body">
+      <div class="kicker">Before Day 22 · your 2-hour self-study</div>
+      <h2>Homework</h2>
+      <ul class="points">
+        <li>Plot <code class="inline">loss_curve_</code> for three learning rates on one chart. Label the "too small" one.</li>
+        <li>On the noisy data, sweep <code class="inline">alpha</code> = 0.0001, 0.01, 1.0 — which test accuracy is best?</li>
+        <li>Read <code class="inline">formulas.md</code> — loss, gradient descent, learning rate, early stopping in first principles.</li>
+        <li>Commit: <code class="inline">git add . &amp;&amp; git commit -m "day 21"</code>.</li>
+      </ul>
+      <div class="warn"><b>Coming up — Day 22:</b> a real neural-network project end to end — build, train well, and evaluate honestly on a proper dataset.</div>
+    </div>
+    <div class="footer"><span class="who">Saarathi Academy · AI Engineering &amp; Machine Learning</span></div>
+  </section>
+
+  <!-- ============ 21 · CLOSE ============ -->
+  <section class="slide section">
+    <div class="brand"><span class="mark"></span><span class="name">Saarathi Academy <span>· AI/ML</span></span></div>
+    <div class="body">
+      <div class="kicker">See you tomorrow</div>
+      <h1>You can train a network, not just run one. 🎛️</h1>
+      <div class="rule"></div>
+      <p>Read the loss, tune the rate, stop before it memorises. That's the craft. Tomorrow: a full project.</p>
+      <p class="sub" style="margin-top:18px;">Saarathi Academy · Old Baneshwor, Kathmandu · 9744442469 · 9761095364</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="nav">
+  <button onclick="go(-1)" aria-label="Previous">‹</button>
+  <button onclick="go(1)" aria-label="Next">›</button>
+</div>
+<div class="hint">← → or Space to navigate · <span class="counter" id="counter"></span></div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let i = 0;
+  function render(){
+    slides.forEach((s,n)=>s.classList.toggle('active', n===i));
+    document.getElementById('progress').style.width = ((i+1)/slides.length*100)+'%';
+    document.getElementById('counter').textContent = (i+1)+' / '+slides.length;
+  }
+  function go(d){ i = Math.max(0, Math.min(slides.length-1, i+d)); render(); }
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); go(1); }
+    if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(-1); }
+    if(e.key==='Home'){ i=0; render(); }
+    if(e.key==='End'){ i=slides.length-1; render(); }
+  });
+  document.getElementById('deck').addEventListener('click', e=>{
+    if(e.target.closest('.nav')) return;
+    const x = e.clientX / window.innerWidth;
+    go(x > 0.5 ? 1 : -1);
+  });
+  render();
+</script>
+</body>
+</html>
