@@ -1,82 +1,50 @@
+"""Train and persist the small PyTorch MLP used by the API."""
+from pathlib import Path
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
 from model import MLP
 
-
-# -------------------------
-# 1. Create random dataset
-# -------------------------
-
-torch.manual_seed(42)
-
-X = torch.randn(1000, 2)
-
-y = (X[:, 0] + X[:, 1] > 0).float().unsqueeze(1)
+PROJECT_DIR = Path(__file__).resolve().parent
+MODEL_PATH = PROJECT_DIR / "model.pth"
 
 
-# -------------------------
-# 2. Create model
-# -------------------------
-
-model = MLP()
-
-
-# -------------------------
-# 3. Loss and optimizer
-# -------------------------
-
-loss_function = nn.BCEWithLogitsLoss()
-
-optimizer = optim.Adam(
-    model.parameters(),
-    lr=0.01
-)
+def make_dataset(n_samples: int = 1000):
+    """Create a deterministic two-feature classification dataset."""
+    generator = torch.Generator().manual_seed(42)
+    X = torch.randn(n_samples, 2, generator=generator)
+    y = (X[:, 0] + X[:, 1] > 0).float().unsqueeze(1)
+    return X, y
 
 
-# -------------------------
-# 4. Training
-# -------------------------
+def train(epochs: int = 100) -> tuple[MLP, float]:
+    """Train the MLP and return the model plus final loss."""
+    X, y = make_dataset()
+    model = MLP()
+    loss_function = nn.BCEWithLogitsLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
 
-for epoch in range(100):
+    for epoch in range(epochs):
+        output = model(X)
+        loss = loss_function(output, y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        if epoch % 10 == 0:
+            print(f"Epoch: {epoch}, Loss: {loss.item():.4f}")
 
-    # Forward
-    output = model(X)
-
-    # Loss
-    loss = loss_function(output, y)
-
-    # Backward
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-
-    if epoch % 10 == 0:
-        print(
-            f"Epoch: {epoch}, Loss: {loss.item():.4f}"
-        )
+    return model, float(loss.item())
 
 
-# -------------------------
-# 5. Save model
-# -------------------------
-
-torch.save(
-    model.state_dict(),
-    "model.pth"
-)
-
-print("Model saved as model.pth")
+def save_model(model: MLP) -> None:
+    """Save model weights beside this script."""
+    torch.save(model.state_dict(), MODEL_PATH)
+    print(f"Model saved to {MODEL_PATH}")
 
 
-# Load the saved weights from disk
-model = MLP()
-
-model.load_state_dict(
-    torch.load("model.pth", map_location="cpu")
-)
-
-model.eval()
-
-
+if __name__ == "__main__":
+    trained_model, final_loss = train()
+    save_model(trained_model)
+    print(f"Final loss: {final_loss:.4f}")
