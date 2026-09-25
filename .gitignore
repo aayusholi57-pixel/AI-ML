@@ -1,0 +1,79 @@
+@"
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+.venv310/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Machine Learning artifacts
+checkpoints/
+runs/
+wandb/
+mlruns/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Data files
+*.csv
+*.xlsx
+*.parquet
+*.pkl
+*.joblib
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Secrets / credentials
+*.pem
+*.key
+credentials.json
+service-account.json
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+"@ | Set-Content .gitignore

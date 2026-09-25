@@ -1,0 +1,47 @@
+# Core Python / notebook tooling
+jupyter
+ipykernel
+notebook
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+Pillow
+joblib
+requests
+python-dotenv
+python-multipart
+
+# ML / DL
+scikit-learn
+torch
+torchvision
+transformers
+tokenizers
+huggingface-hub
+sentence-transformers
+datasets
+
+# LLM / agent / RAG
+openai
+langchain
+langchain-core
+langchain-community
+langchain-google-genai
+google-generativeai
+chromadb
+faiss-cpu
+pypdf
+PyMuPDF
+tiktoken
+
+# API / backend
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+
+# Utility packages seen across examples
+tqdm
+regex
