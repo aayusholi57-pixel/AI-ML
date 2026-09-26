@@ -6,7 +6,7 @@ from pathlib import Path
 import torch
 from fastapi.testclient import TestClient
 
-PROJECT_DIR = Path(__file__).resolve().parents[1] / "new1"
+PROJECT_DIR = Path(__file__).resolve().parents[1] / "pytorch_mlp_api"
 sys.path.insert(0, str(PROJECT_DIR))
 
 from main import app  # noqa: E402
