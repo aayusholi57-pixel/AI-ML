@@ -5,8 +5,8 @@
             "name": "Run food classifier",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/computer_vision/foodclassifier/train.py",
-            "cwd": "${workspaceFolder}/computer_vision/foodclassifier",
+            "program": "${workspaceFolder}/computer_vision/dal_bhat_classifier/train.py",
+            "cwd": "${workspaceFolder}/computer_vision/dal_bhat_classifier",
             "console": "integratedTerminal"
         }
     ]
