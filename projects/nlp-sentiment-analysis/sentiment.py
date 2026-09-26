@@ -20,24 +20,29 @@ class EvaluationResult:
     f1: float
 
 
-DATASET = (
-    ("I love this excellent product", "positive"),
-    ("This is a great and helpful product", "positive"),
-    ("The service was excellent and wonderful", "positive"),
+TRAIN_DATA = (
+    ("I love this product", "positive"),
+    ("This is a great product", "positive"),
+    ("The service was excellent", "positive"),
     ("I am very happy with this result", "positive"),
     ("Amazing quality and great service", "positive"),
-    ("I would recommend this excellent service", "positive"),
     ("The support team was wonderful and helpful", "positive"),
-    ("This product is good and reliable", "positive"),
-    ("I hate this terrible product", "negative"),
-    ("This is a bad and useless product", "negative"),
-    ("The service was terrible and awful", "negative"),
+    ("I hate this product", "negative"),
+    ("This is a terrible product", "negative"),
+    ("The service was awful", "negative"),
     ("I am very unhappy with this result", "negative"),
     ("Poor quality and bad service", "negative"),
-    ("I would not recommend this terrible service", "negative"),
-    ("The support team was horrible and unhelpful", "negative"),
-    ("This product is bad and unreliable", "negative"),
+    ("The support team was horrible and useless", "negative"),
 )
+
+TEST_DATA = (
+    ("excellent great service", "positive"),
+    ("love helpful product", "positive"),
+    ("terrible bad service", "negative"),
+    ("hate useless product", "negative"),
+)
+
+DATASET = TRAIN_DATA + TEST_DATA
 
 
 def build_model() -> Pipeline:
@@ -60,11 +65,9 @@ def evaluate(model: Pipeline, texts: list[str], labels: list[str]) -> Evaluation
 
 
 def train_and_evaluate() -> EvaluationResult:
-    """Train on a fixed, class-balanced holdout split and return metrics."""
-    train_data = DATASET[:6] + DATASET[8:14]
-    test_data = DATASET[6:8] + DATASET[14:16]
-    train_texts, train_labels = zip(*train_data)
-    test_texts, test_labels = zip(*test_data)
+    """Train on fixed training data and evaluate on a separate holdout."""
+    train_texts, train_labels = zip(*TRAIN_DATA)
+    test_texts, test_labels = zip(*TEST_DATA)
     model = build_model().fit(train_texts, train_labels)
     return evaluate(model, list(test_texts), list(test_labels))
 
