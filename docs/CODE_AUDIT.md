@@ -51,10 +51,10 @@ The focused notebook review found historical notebooks containing saved errors a
 
 - rag_again_full_pipeline.ipynb: 7 saved error outputs and 13 empty code cells
 - sentiment_analysis.ipynb: 3 saved error outputs and 15 empty code cells
-- Student rags/Exampreparation_RAG.ipynb: 3 saved error outputs and 57 empty code cells
+- exam_preparation_rag/Exampreparation_RAG.ipynb: 3 saved error outputs and 57 empty code cells
 - real_life_gemini_ai_agent.ipynb: 2 empty code cells
 - project5.ipynb: 1 empty code cell
-- cnn/cnn10.ipynb: 9 empty code cells
+- computer_vision/cnn10.ipynb: 9 empty code cells
 
 These notebooks are retained as learning evidence. Promoted project pages point reviewers toward maintained implementations rather than pretending every historical cell is production-ready.
 
