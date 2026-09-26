@@ -9,7 +9,7 @@ The original learning archive remains available for transparency, but promoted p
 | Project | Location | Engineering focus |
 | --- | --- | --- |
 | Exam Preparation RAG | [Exam Preparation RAG](../exam_preparation_rag/) | PDF ingestion, retrieval, Gemini, grounded generation, FastAPI |
-| Dal Bhat Image Classifier | [computer_vision/foodclassifier](../computer_vision/foodclassifier/) | PyTorch, ResNet18, transfer learning, class balancing, Streamlit |
+| Dal Bhat Image Classifier | [computer_vision/dal_bhat_classifier](../computer_vision/dal_bhat_classifier/) | PyTorch, ResNet18, transfer learning, class balancing, Streamlit |
 | Breast Cancer Classification | [Notebook](../breastcancer.ipynb) | scikit-learn, preprocessing, logistic regression, evaluation |
 | PyTorch MLP API | [pytorch_mlp_api](../pytorch_mlp_api/) | PyTorch, reproducible training, model persistence, FastAPI |
 | NLP Sentiment Analysis | [Project page](nlp-sentiment-analysis/) | BPE tokenization, embeddings, PyTorch |
