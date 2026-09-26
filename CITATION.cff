@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "AI Engineering & Machine Learning Portfolio"
+message: "If this portfolio is useful for learning or reference, please cite the repository."
+type: software
+authors:
+  - family-names: Oli
+    given-names: Aayush
+repository-code: "https://github.com/aayusholi57-pixel/AI-ML"
+license: "NOASSERTION"
