@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/aayusholi57-pixel/AI-ML/actions/workflows/quality.yml/badge.svg)](https://github.com/aayusholi57-pixel/AI-ML/actions/workflows/quality.yml)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-not%20specified-lightgrey)](https://github.com/aayusholi57-pixel/AI-ML)
 
 A practical AI/ML engineering portfolio covering classical machine learning, deep learning, NLP, computer vision, RAG, LLM agents, APIs, evaluation, testing, and reproducible experimentation.
 
