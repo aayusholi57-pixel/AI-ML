@@ -11,7 +11,7 @@ A practical AI/ML engineering portfolio covering classical machine learning, dee
 | Project | What it demonstrates |
 | --- | --- |
 | [Exam Preparation RAG](exam_preparation_rag/) | PDF ingestion, chunking, TF-IDF/SVD retrieval, grounded Gemini generation, FastAPI |
-| [Dal Bhat Image Classifier](computer_vision/foodclassifier/) | PyTorch, ResNet18 transfer learning, class-aware training, Streamlit inference |
+| [Dal Bhat Image Classifier](computer_vision/dal_bhat_classifier/) | PyTorch, ResNet18 transfer learning, class-aware training, Streamlit inference |
 | [Breast Cancer Classification](projects/breast-cancer-classification/) | Leakage-safe preprocessing, Logistic Regression, stratified evaluation |
 | [PyTorch MLP API](pytorch_mlp_api/) | Deterministic data generation, PyTorch training, persistence, FastAPI inference |
 | [NLP Sentiment Analysis](projects/nlp-sentiment-analysis/) | TF-IDF features, Logistic Regression, precision/recall/F1 evaluation |
@@ -41,7 +41,7 @@ A practical AI/ML engineering portfolio covering classical machine learning, dee
 AI-ML/
 ├── projects/                 # curated, documented portfolio projects
 ├── exam_preparation_rag/             # Exam Preparation RAG application
-├── computer_vision/foodclassifier/       # Dal Bhat computer-vision application
+├── computer_vision/dal_bhat_classifier/       # Dal Bhat computer-vision application
 ├── pytorch_mlp_api/                     # PyTorch MLP + FastAPI
 ├── docs/                     # portfolio standards and engineering audits
 ├── tests/                    # core automated tests
@@ -141,7 +141,7 @@ Recommended path:
 
 1. [Portfolio Projects](projects/)
 2. [Exam Preparation RAG](exam_preparation_rag/)
-3. [Dal Bhat Image Classifier](computer_vision/foodclassifier/)
+3. [Dal Bhat Image Classifier](computer_vision/dal_bhat_classifier/)
 4. [Breast Cancer Classification](projects/breast-cancer-classification/)
 5. [PyTorch MLP API](pytorch_mlp_api/)
 6. [LLM Agent with Memory](projects/llm-agent-memory/)
