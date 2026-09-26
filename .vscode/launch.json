@@ -5,8 +5,8 @@
             "name": "Run food classifier",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/cnn/foodclassifier/train.py",
-            "cwd": "${workspaceFolder}/cnn/foodclassifier",
+            "program": "${workspaceFolder}/computer_vision/foodclassifier/train.py",
+            "cwd": "${workspaceFolder}/computer_vision/foodclassifier",
             "console": "integratedTerminal"
         }
     ]
