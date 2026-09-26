@@ -21,22 +21,22 @@ class EvaluationResult:
 
 
 DATASET = (
-    ("I love this product", "positive"),
-    ("This is fantastic and helpful", "positive"),
-    ("The experience was excellent", "positive"),
-    ("I am very happy with the result", "positive"),
-    ("Amazing quality and fast service", "positive"),
-    ("This made my day", "positive"),
-    ("I would recommend this to everyone", "positive"),
-    ("The support team was wonderful", "positive"),
-    ("I hate this product", "negative"),
-    ("This is terrible and useless", "negative"),
-    ("The experience was awful", "negative"),
-    ("I am very disappointed", "negative"),
-    ("Poor quality and slow service", "negative"),
-    ("This ruined my day", "negative"),
-    ("I would not recommend this", "negative"),
-    ("The support team was horrible", "negative"),
+    ("I love this excellent product", "positive"),
+    ("This is a great and helpful product", "positive"),
+    ("The service was excellent and wonderful", "positive"),
+    ("I am very happy with this result", "positive"),
+    ("Amazing quality and great service", "positive"),
+    ("I would recommend this excellent service", "positive"),
+    ("The support team was wonderful and helpful", "positive"),
+    ("This product is good and reliable", "positive"),
+    ("I hate this terrible product", "negative"),
+    ("This is a bad and useless product", "negative"),
+    ("The service was terrible and awful", "negative"),
+    ("I am very unhappy with this result", "negative"),
+    ("Poor quality and bad service", "negative"),
+    ("I would not recommend this terrible service", "negative"),
+    ("The support team was horrible and unhelpful", "negative"),
+    ("This product is bad and unreliable", "negative"),
 )
 
 
@@ -60,9 +60,9 @@ def evaluate(model: Pipeline, texts: list[str], labels: list[str]) -> Evaluation
 
 
 def train_and_evaluate() -> EvaluationResult:
-    """Train on a fixed split and return held-out metrics."""
-    train_data = DATASET[::2]
-    test_data = DATASET[1::2]
+    """Train on a fixed, class-balanced holdout split and return metrics."""
+    train_data = DATASET[:6] + DATASET[8:14]
+    test_data = DATASET[6:8] + DATASET[14:16]
     train_texts, train_labels = zip(*train_data)
     test_texts, test_labels = zip(*test_data)
     model = build_model().fit(train_texts, train_labels)
