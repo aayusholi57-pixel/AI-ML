@@ -2,7 +2,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from rag_engine import exam_rag
+from .rag_engine import exam_rag
 
 app = FastAPI(title="Exam Preparation RAG API", version="1.0.0")
 
