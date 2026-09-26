@@ -10,10 +10,10 @@ A practical AI/ML engineering portfolio covering classical machine learning, dee
 
 | Project | What it demonstrates |
 | --- | --- |
-| [Exam Preparation RAG](Student%20rags/) | PDF ingestion, chunking, TF-IDF/SVD retrieval, grounded Gemini generation, FastAPI |
-| [Dal Bhat Image Classifier](cnn/foodclassifier/) | PyTorch, ResNet18 transfer learning, class-aware training, Streamlit inference |
+| [Exam Preparation RAG](exam_preparation_rag/) | PDF ingestion, chunking, TF-IDF/SVD retrieval, grounded Gemini generation, FastAPI |
+| [Dal Bhat Image Classifier](computer_vision/foodclassifier/) | PyTorch, ResNet18 transfer learning, class-aware training, Streamlit inference |
 | [Breast Cancer Classification](projects/breast-cancer-classification/) | Leakage-safe preprocessing, Logistic Regression, stratified evaluation |
-| [PyTorch MLP API](new1/) | Deterministic data generation, PyTorch training, persistence, FastAPI inference |
+| [PyTorch MLP API](pytorch_mlp_api/) | Deterministic data generation, PyTorch training, persistence, FastAPI inference |
 | [NLP Sentiment Analysis](projects/nlp-sentiment-analysis/) | TF-IDF features, Logistic Regression, precision/recall/F1 evaluation |
 | [LLM Agent with Memory](projects/llm-agent-memory/) | Session-scoped SQLite memory, agent abstractions, Gemini-ready configuration |
 | [RAG Retrieval Lab](projects/rag-retrieval-lab/) | Retrieval experiments, ranking behavior, RAG architecture |
@@ -40,9 +40,9 @@ A practical AI/ML engineering portfolio covering classical machine learning, dee
 ~~~text
 AI-ML/
 ├── projects/                 # curated, documented portfolio projects
-├── Student rags/             # Exam Preparation RAG application
-├── cnn/foodclassifier/       # Dal Bhat computer-vision application
-├── new1/                     # PyTorch MLP + FastAPI
+├── exam_preparation_rag/             # Exam Preparation RAG application
+├── computer_vision/foodclassifier/       # Dal Bhat computer-vision application
+├── pytorch_mlp_api/                     # PyTorch MLP + FastAPI
 ├── docs/                     # portfolio standards and engineering audits
 ├── tests/                    # core automated tests
 ├── learning-history/         # curated map of the learning progression
@@ -98,15 +98,15 @@ uvicorn servermodel:app --reload
 ### Exam Preparation RAG
 
 ~~~bash
-python -m pip install -r "Student rags/requirements-rag.txt"
-uvicorn "Student rags.app:app" --reload
+python -m pip install -r "exam_preparation_rag/requirements-rag.txt"
+uvicorn exam_preparation_rag.app:app --reload
 ~~~
 
 ### PyTorch MLP API
 
 ~~~bash
-python new1/train.py
-uvicorn new1.main:app --reload
+python pytorch_mlp_api/train.py
+uvicorn pytorch_mlp_api.main:app --reload
 ~~~
 
 ## Quality gates
@@ -140,10 +140,10 @@ See [Learning History — Days 22–34](learning-history/).
 Recommended path:
 
 1. [Portfolio Projects](projects/)
-2. [Exam Preparation RAG](Student%20rags/)
-3. [Dal Bhat Image Classifier](cnn/foodclassifier/)
+2. [Exam Preparation RAG](exam_preparation_rag/)
+3. [Dal Bhat Image Classifier](computer_vision/foodclassifier/)
 4. [Breast Cancer Classification](projects/breast-cancer-classification/)
-5. [PyTorch MLP API](new1/)
+5. [PyTorch MLP API](pytorch_mlp_api/)
 6. [LLM Agent with Memory](projects/llm-agent-memory/)
 7. [NLP Sentiment Analysis](projects/nlp-sentiment-analysis/)
 
