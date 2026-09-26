@@ -40,8 +40,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - run: python -m pip install -r "Student rags/requirements-rag.txt" pytest
-      - run: pytest "Student rags/test_rag_engine.py" -q
+      - run: python -m pip install -r "exam_preparation_rag/requirements-rag.txt" pytest
+      - run: pytest "exam_preparation_rag/test_rag_engine.py" -q
 
   vision:
     name: Dal Bhat CV execution test
@@ -51,8 +51,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - run: python -m pip install -r "cnn/foodclassifier/requirements-food.txt" pytest
-      - run: pytest "cnn/foodclassifier/test_train.py" -q
+      - run: python -m pip install -r "computer_vision/foodclassifier/requirements-food.txt" pytest
+      - run: pytest "computer_vision/foodclassifier/test_train.py" -q
 
   nlp:
     name: NLP sentiment evaluation
