@@ -1,8 +1,14 @@
 """Execution-level regression tests for the maintained API."""
 
+from pathlib import Path
+import sys
+
+import pytest
 from fastapi.testclient import TestClient
 
-from servermodel import app
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from servermodel import app  # noqa: E402
 
 
 def test_root_and_student_api_contract() -> None:
