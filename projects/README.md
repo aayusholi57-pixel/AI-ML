@@ -8,10 +8,10 @@ The original learning archive remains available for transparency, but promoted p
 
 | Project | Location | Engineering focus |
 | --- | --- | --- |
-| Exam Preparation RAG | [Student rags](../Student%20rags/) | PDF ingestion, retrieval, Gemini, grounded generation, FastAPI |
-| Dal Bhat Image Classifier | [cnn/foodclassifier](../cnn/foodclassifier/) | PyTorch, ResNet18, transfer learning, class balancing, Streamlit |
+| Exam Preparation RAG | [Exam Preparation RAG](../exam_preparation_rag/) | PDF ingestion, retrieval, Gemini, grounded generation, FastAPI |
+| Dal Bhat Image Classifier | [computer_vision/foodclassifier](../computer_vision/foodclassifier/) | PyTorch, ResNet18, transfer learning, class balancing, Streamlit |
 | Breast Cancer Classification | [Notebook](../breastcancer.ipynb) | scikit-learn, preprocessing, logistic regression, evaluation |
-| PyTorch MLP API | [new1](../new1/) | PyTorch, reproducible training, model persistence, FastAPI |
+| PyTorch MLP API | [pytorch_mlp_api](../pytorch_mlp_api/) | PyTorch, reproducible training, model persistence, FastAPI |
 | NLP Sentiment Analysis | [Project page](nlp-sentiment-analysis/) | BPE tokenization, embeddings, PyTorch |
 | LLM Agent with Memory | [Project page](llm-agent-memory/) | Gemini, agent tools, LangGraph/LangChain, SQLite |
 | RAG Retrieval Lab | [Project page](rag-retrieval-lab/) | Retrieval, vector representations, RAG experimentation |
