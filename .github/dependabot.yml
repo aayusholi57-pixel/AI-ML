@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directory: "/exam_preparation_rag"
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directory: "/computer_vision/dal_bhat_classifier"
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directory: "/projects/breast-cancer-classification"
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directory: "/projects/llm-agent-memory"
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directory: "/projects/nlp-sentiment-analysis"
+    schedule:
+      interval: monthly
