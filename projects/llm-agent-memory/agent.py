@@ -17,15 +17,21 @@ class MemoryStore:
 
     def __init__(self, db_path: str | Path = ":memory:") -> None:
         self.db_path = str(db_path)
+        self._memory_connection: sqlite3.Connection | None = (
+            sqlite3.connect(":memory:") if self.db_path == ":memory:" else None
+        )
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
+        if self._memory_connection is not None:
+            return self._memory_connection
         connection = sqlite3.connect(self.db_path)
         connection.row_factory = sqlite3.Row
         return connection
 
     def _initialize(self) -> None:
         with self._connect() as connection:
+            connection.row_factory = sqlite3.Row
             connection.execute(
                 """CREATE TABLE IF NOT EXISTS messages (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
