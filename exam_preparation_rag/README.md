@@ -23,7 +23,7 @@ python -m pip install -r requirements-rag.txt
 Set `GOOGLE_API_KEY` in a local `.env` file, then:
 
 ```bash
-uvicorn "Student rags.app:app" --reload
+uvicorn exam_preparation_rag.app:app --reload
 ```
 
 The API documentation is available at `/docs`.
@@ -31,7 +31,7 @@ The API documentation is available at `/docs`.
 For terminal use:
 
 ```bash
-python "Student rags/rag_engine.py"
+python exam_preparation_rag/rag_engine.py
 ```
 
 ## Important limitation
